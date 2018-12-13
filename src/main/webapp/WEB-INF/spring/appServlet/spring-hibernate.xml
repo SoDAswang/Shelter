@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>    
+<beans xmlns="http://www.springframework.org/schema/beans"    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   
+    xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:aop="http://www.springframework.org/schema/aop"   
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:jee="http://www.springframework.org/schema/jee"  
+    xmlns:tx="http://www.springframework.org/schema/tx"  
+    xsi:schemaLocation="    
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd  
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd  
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+        
+
+    <context:component-scan base-package="com.mycompany.shelter"></context:component-scan>
+      
+      <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="cacheManager" ref="cacheManager"></property>
+		<property name="realm" ref="jdbcRealm" />
+		<property name="sessionManager" ref="sessionManager"></property>
+	</bean>
+
+	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache.xml"></property>
+	</bean>
+
+	<!-- MD5加密 -->
+	<bean id="credentialsMatcher" class="com.mycompany.shelter.jcaptcha.RetryLimitHashedCredentialsMatcher">
+		<constructor-arg ref="cacheManager" />
+		<property name="hashAlgorithmName" value="MD5"></property> <!-- 加密算法的名称 -->
+		<property name="hashIterations" value="1024"></property> <!-- 配置加密的次数 -->
+		<property name="storedCredentialsHexEncoded" value="true" />
+	</bean>
+
+	<bean id="jdbcRealm" class="com.mycompany.shelter.jcaptcha.TestRealm">
+
+		<property name="credentialsMatcher" ref="credentialsMatcher" />
+		<property name="cachingEnabled" value="false" />
+	</bean>
+
+	<!-- 会话ID生成器 -->
+	<bean id="sessionIdGenerator"
+		class="org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator" />
+
+	<!-- 会话Cookie模板 -->
+	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+		<constructor-arg value="sid" />
+		<property name="httpOnly" value="true" />
+		<property name="maxAge" value="-1" />
+	</bean>
+
+	<!-- 会话DAO -->
+	<bean id="sessionDAO"
+		class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
+		<property name="activeSessionsCacheName" value="shiro-activeSessionCache" />
+		<property name="sessionIdGenerator" ref="sessionIdGenerator" />
+
+
+	</bean>
+
+	<!-- 会话验证调度器 -->
+	<bean id="sessionValidationScheduler"
+		class="org.apache.shiro.session.mgt.ExecutorServiceSessionValidationScheduler">
+		<property name="interval" value="1800000" />
+		<property name="sessionManager" ref="sessionManager" />
+
+	</bean>
+
+	<!-- 会话管理器 -->
+	<bean id="sessionManager"
+		class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+		<property name="globalSessionTimeout" value="1800000" />
+		<property name="deleteInvalidSessions" value="true" />
+		<property name="sessionValidationSchedulerEnabled" value="true" />
+		<property name="sessionValidationScheduler" ref="sessionValidationScheduler" />
+		<property name="sessionDAO" ref="sessionDAO" />
+		<property name="sessionIdCookieEnabled" value="true" />
+		<property name="sessionIdCookie" ref="sessionIdCookie" />
+
+
+	</bean>
+
+	<bean id="kickoutSessionControlFilter" class="com.mycompany.shelter.jcaptcha.KickoutSessionControlFilter">
+		<property name="cacheManager" ref="cacheManager" />
+		<property name="sessionManager" ref="sessionManager" />
+
+		<property name="kickoutAfter" value="false" />
+		<property name="maxSession" value="1" />
+
+		<property name="kickoutUrl" value="/home" />
+	</bean>
+
+
+	<!-- 基于Form表单的身份验证过滤器 -->
+	<bean id="authcFilter" class="com.mycompany.shelter.jcaptcha.MyFormAuthenticationFilter">
+		<property name="usernameParam" value="username" />
+		<property name="passwordParam" value="password" />
+		<!-- <property name="rememberMeParam" value="rememberMe" /> -->
+		<property name="failureKeyAttribute" value="shiroLoginFailure" />
+		<property name="loginUrl" value="/login" />
+		<!-- <property name="successUrl" value="/"></property> -->
+	</bean>
+	<!-- 验证码组建 -->
+	<bean id="jCaptchaValidateFilter" class="com.mycompany.shelter.jcaptcha.JCaptchaValidateFilter">
+		<property name="jcaptchaEbabled" value="true" />
+		<property name="jcaptchaParam" value="jcaptchaCode" />
+		<property name="failureKeyAttribute" value="shiroLoginFailure" />
+	</bean>
+	<bean id="logoutFilter" class="org.apache.shiro.web.filter.authc.LogoutFilter">
+     <property name="redirectUrl" value="/home" />
+</bean>
+
+  	<!-- <bean id="userFilter" class="com.aisinfo.jcaptcha.UserFilter"></bean> -->
+	<!-- shiro的配置 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager"></property>
+		 <property name="loginUrl" value="/home"/> 
+
+		<!-- 权限认证失败，则跳转到指定页面 -->
+		 <property name="unauthorizedUrl" value="/person/no" /> 
+		<!-- 自定义filter配置 -->
+		<property name="filters">
+			<map>
+				<!-- 将自定义 的FormAuthenticationFilter注入shiroFilter中 -->
+				<entry key="authc" value-ref="authcFilter" />
+				<entry key="jCaptchaValidate" value-ref="jCaptchaValidateFilter" />
+                <entry key="logout" value-ref="logoutFilter" />
+				<entry key="kickout" value-ref="kickoutSessionControlFilter" />
+				<!-- <entry key="user" value-ref="userFilter"></entry> -->
+			</map>
+		</property>
+ 
+		<property name="filterChainDefinitions">
+			<value>
+				
+				/static/** = anon
+				/jcaptcha* = anon
+				/login = jCaptchaValidate,authc
+				/logout = logout
+				/home = kickout
+				/estimate = kickout
+				/material/** = kickout
+				/furniture/** = kickout
+				/sample/** = kickout
+				/personal/** = kickout
+				/register = kickout
+				 /** =user,kickout   <!--authc 
+					：可以自己定义的拦截器 FromAuthenticationFilter anon -->
+			</value>
+		</property>
+	</bean>
+
+	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+      
+    <context:property-placeholder location="/WEB-INF/spring/appServlet/persistence-mysql.properties" />
+   
+   <!-- 自动加载构建bean -->  
+    <context:component-scan base-package="com.mycompany.shelter.service" />  
+    <context:component-scan base-package="com.mycompany.shelter.dao" /> 
+<!--     <bean id="springContextUtil" class="com.mycompany.iparking.service.util.SpringContextUtil" />  -->
+  
+   <!-- 配置数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+        destroy-method="close">
+        <property name="driverClass">
+            <value>${jdbc.driverClassName}</value>
+        </property>
+        <property name="jdbcUrl">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="user">
+            <value>${jdbc.username}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+        <!--连接池中保留的最小连接数。 -->
+        <property name="minPoolSize">
+            <value>5</value>
+        </property>
+        <!--连接池中保留的最大连接数。Default: 15 -->
+        <property name="maxPoolSize">
+            <value>15</value>
+        </property>
+        <!--初始化时获取的连接数，取值应在minPoolSize与maxPoolSize之间。Default: 3 -->
+        <property name="initialPoolSize">
+            <value>10</value>
+        </property>
+        <!--最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+        <property name="maxIdleTime">
+            <value>60</value>
+        </property>
+        <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+        <property name="acquireIncrement">
+            <value>5</value>
+        </property>
+        <!--JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements 属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。
+            如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0 -->
+        <property name="maxStatements">
+            <value>0</value>
+        </property>
+        <!--每60秒检查所有连接池中的空闲连接。Default: 0 -->
+        <property name="idleConnectionTestPeriod">
+            <value>60</value>
+        </property>
+        <!--定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 -->
+        <property name="acquireRetryAttempts">
+            <value>30</value>
+        </property>
+        <!--获取连接失败将会引起所有等待连接池来获取连接的线程抛出异常。但是数据源仍有效 保留，并在下次调用getConnection()的时候继续尝试获取连接。如果设为true，那么在尝试
+            获取连接失败后该数据源将申明已断开并永久关闭。Default: false -->
+        <property name="breakAfterAcquireFailure">
+            <value>true</value>
+        </property>
+        <!--因性能消耗大请只在需要的时候使用它。如果设为true那么在每个connection提交的 时候都将校验其有效性。建议使用idleConnectionTestPeriod或automaticTestTable
+            等方法来提升连接测试的性能。Default: false -->
+        <property name="testConnectionOnCheckout">
+            <value>false</value>
+        </property>
+    </bean>
+ 
+    <!-- 配置Jdbc模板 -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+  
+   <!--配置hibernate sessionFacotry-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+            </props>
+        </property>
+        <!--自动扫描注解的方式配置hibernate 类文件-->
+        <property name="packagesToScan">
+            <list>
+                <value>com.mycompany.shelter.entity</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--配置事务管理器-->
+    <bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    
+ 
+    <tx:annotation-driven transaction-manager="txManager"/>
+  
+    <!-- 配置事务通知属性 -->  
+    <tx:advice id="txAdvice" transaction-manager="txManager">  
+        <!-- 定义事务传播属性 -->  
+        <tx:attributes>  
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="count*" propagation="REQUIRED" />   
+            <tx:method name="update*" propagation="REQUIRED" />  
+            <tx:method name="edit*" propagation="REQUIRED" />  
+            <tx:method name="save*" propagation="REQUIRED" />  
+            <tx:method name="add*" propagation="REQUIRED" />  
+            <tx:method name="new*" propagation="REQUIRED" />  
+            <tx:method name="set*" propagation="REQUIRED" />  
+            <tx:method name="remove*" propagation="REQUIRED" />  
+            <tx:method name="delete*" propagation="REQUIRED" />  
+            <tx:method name="change*" propagation="REQUIRED" />  
+            <tx:method name="get*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="find*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="load*" propagation="REQUIRED" read-only="true" />  
+            <tx:method name="*" propagation="REQUIRED" read-only="true" />  
+        </tx:attributes>  
+    </tx:advice> 
+    
+
+    
+    <!-- 配置事务切面 -->  
+    <aop:config>  
+        <aop:pointcut id="serviceOperation"  
+            expression="execution(* com.mycompany.shelter.service.*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />  
+    </aop:config>  
+</beans>  

@@ -1,0 +1,300 @@
+@CHARSET "UTF-8";
+.btn-mydefault {
+	color: white;
+	background-color: rgba(0, 0, 0, 0);
+	border-color: white;
+	border-radius: 0px;
+}
+
+.btn-mydefault:hover {
+	color: #282828;
+	background-color: white;
+	-webkit-transition: background 0.3s ease-in-out;
+}
+
+.navbar-default {
+	background-color: rgba(0, 0, 0, 0);
+	border: 0px;
+}
+
+.li-white {
+	color: white;
+}
+
+.a-detail>a {
+	color: grey;
+}
+
+.img-title {
+	background: rgba(0, 0, 0, 0);
+	color: rgba(255, 255, 255, 0);
+}
+
+.img-title:hover {
+	background: rgba(0, 0, 0, 0.5);
+	color: rgba(255, 255, 255, 1);
+	-webkit-transition: background 0.3s ease-in-out;
+	-webkit-transition: color 0.3s ease-in-out;
+}
+
+.top-img-md--content {
+    position: absolute;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    -moz-transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    -o-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    width: 85.7142857143%;
+    text-align: center;
+}
+
+.top-img-md {
+    position: relative;
+    height: 80vh;
+    background-position: center center;
+    background-size: cover;
+    overflow: hidden; 
+    display: block;
+}
+
+.white {
+    color: rgba(255, 255, 255, 1);
+}
+
+.navbar-static-top {
+	position: fixed;
+	top: 0;
+    z-index: 1;
+    border-width: 0 0 1px;
+}
+
+.bottom {
+	z-index: -1;
+}
+
+.border-radius {
+	border-radius: 5px;
+}
+
+.margin_head {
+	margin-top: 70px;
+	margin-bottom: 20px;
+}
+
+/**
+   material_category.jsp 
+    */
+/* 类目表头 */
+.category-head {
+	color: #888;
+	font-weight: 100;
+}
+
+.category-more {
+	color: #888;
+}
+
+.category-selected {
+	color: #c92726;
+	font-weight: 900;
+}
+
+.category-border {
+    padding-top: 10px;
+    margin-bottom: 0px;
+}
+
+ input {
+	-webkit-appearance: none;
+} 
+
+.price {
+	color: #ff7300;
+}
+
+/**
+   decorator.jsp
+*/
+.login-title {
+	color: #888;
+	font-weight: 900;
+}
+
+/**
+   sample_detail.jsp
+*/
+.primary_left {
+	margin-left: 55px;
+}
+
+.design_left {
+	margin-left: 30px;
+}
+
+.details_head {
+	height: 330px;
+    border: 1px solid #eee;
+    position: static;
+    padding: 20px 20px 0px;
+    float: left;
+}
+
+.details_title {
+	float: right;
+    margin-left: 90px;
+}
+
+.brand {
+	float: left;
+    height: auto;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    padding-left: 0px;
+    padding-right: 0px;
+    position: relative;
+}
+
+.design {
+	border: 1px solid #eee;
+	padding: 0px 0px 70px 70px;
+}
+
+.design_roomTitle {
+    margin-bottom: 30px;
+}
+
+.design_room {
+	margin-bottom: 60px;
+}
+
+.design_image {
+	margin-bottom: 20px;
+	width:100%;
+	padding-right: 30px;
+}
+
+.design_detail {
+	float: left;
+    height: auto;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    padding-left: 0px;
+    padding-right: 0px;
+    position: relative;
+}
+
+.design_detail>h5 {
+	font: bold 14px/40px "宋体";
+    color: #999;
+    text-indent: 3em;
+}
+
+.primary_right {
+    float: left;
+    width: 310px;
+    margin-left: 10px;
+    position: relative;
+}
+
+.brand_title {
+    height: 40px;
+    background: #f8f8f8;
+    font: bold 14px/40px "宋体";
+    color: #999;
+    text-indent: 3em;
+    border-bottom: 1px solid #eee;
+}
+
+.panel-body {
+    padding: 5px;
+}
+
+.panel-body>div {
+	padding-left: 0px;
+}
+
+.panel-body>div>img {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.panel-body>div>h6 {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.panel-body>div>h5 {
+    padding-left: 0px;
+}
+
+/**
+   personal_wish_detail.jsp
+*/
+.detail-amount {
+	width:39px; 
+	border:1px solid #aaa;
+	text-align: center;
+}
+
+.detail-price {
+	color: #9c9c9c;
+}
+
+.detail-price>span {
+	border:1px solid #aaa;
+}
+
+.experience {
+	border: 0 0 0 0 ;
+	padding:3 6 3 6;
+}
+
+.edit {
+	position: relative;
+}
+.edit>div>span {
+	position: absolute; 
+	right: 0; 
+	bottom: 0;
+	color: rgba(240, 173, 78, 0);
+}
+.edit:hover {
+	border:2px solid #f0ad4e;
+	/* background-color: #ddd;
+	color: rgba(0, 0, 0, 0.1) */
+}
+
+.edit:hover>div>span {
+		color: rgba(240, 173, 78, 1);
+}
+
+.wishTable>td {
+	font-size:12;
+}
+
+
+/**
+   decorator.jsp
+*/
+.breadcrumb {
+	background-color: #ffffff;
+	margin-bottom: 0px;
+}
+
+
+/**
+    personal_favorite.jsp
+*/
+.choosedWish {
+	border:2px solid #f0ad4e;
+}
+
+
+
+

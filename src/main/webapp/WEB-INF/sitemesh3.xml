@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+	<mapping path="/*" decorator="/WEB-INF/views/decorator.jsp" />
+	<!-- <mapping path="/personal/*" decorator="/WEB-INF/views/personalDecorator.jsp" /> -->
+	<mapping path="/home" exclue="true" />
+	<!-- <mapping path="/person/*" exclue="true" /> -->
+</sitemesh>
